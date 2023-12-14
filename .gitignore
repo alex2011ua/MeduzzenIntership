@@ -1,2 +1,6 @@
 /test_data/
 .env
+/instructions.odt
+/.~lock*
+venv*
+/test.py

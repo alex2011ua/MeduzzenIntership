@@ -3,7 +3,7 @@ Go to the project directory
 
 #### Activate docker
 ```bash
-    sudo docker-compose up
+    docker-compose up
 ```
 
 
@@ -11,7 +11,7 @@ So the general topics in text:
 
 1. Cleaning
 
-We have power fool build in functions in Python like str.maketrans('', '', string.punctuation), str.replace(""", " ") or 
+We have powerfool build in functions in Python like str.maketrans('', '', string.punctuation), str.replace(""", " ") or 
 library re to clean and delete unimportant information
 
 2. Language detection
@@ -58,3 +58,4 @@ we can omit the greeting and farewell parts of the letter
 7. Extraction of information, general and specific ones
 8. Start loving language problems 😊
 
+![img_3.png](img_3.png)
