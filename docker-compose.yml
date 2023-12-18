@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: meduzzen
+    build: .
+    ports:
+      - "8010:8010"
