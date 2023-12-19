@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+  <title>Show results</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="text-danger font-weight-bold">
+        {% for error in errors %}
+          <li>{{error}}</li>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="row my-5">
+      <h3 class="text-center display-4">Show results analyze text.</h3>
+      <form method="POST">
+        <div class="mb-3">
+          <label for="exampleFormControlTextarea1" class="form-label">Description</label>
+          <textarea class="form-control" required name="description" id="exampleFormControlTextarea1" rows="3">{{description}}</textarea>
+          <div id="help" class="form-text">Please provide complete text to analyze. </div>
+
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+
+    <p id="demo"></p>
+
+    <script>
+        var jsonData = {{ pretty_json | to_nice_json}};
+        var parsedData = JSON.parse(jsonData);
+        document.getElementById("demo").innerHTML = "<pre>" + JSON.stringify(parsedData, null, 2) + "</pre>";
+    </script>
+
+
+{% endblock %}
