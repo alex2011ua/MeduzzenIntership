@@ -1,30 +1,23 @@
-import json
-
 import pycld2 as cld2
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from forms import ShowResultsForm
 from jinja2 import Environment, FileSystemLoader
-from jinja2.runtime import Undefined
+from pydantic import BaseModel
 from trankit import Pipeline
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 env = Environment(loader=FileSystemLoader("templates"))
 
 
-def dump_json(value: dict):
-    """Pretty view json"""
-    if isinstance(value, Undefined):  # to avoid exception in first open page without text
-        return json.dumps({})
-    return json.dumps(value, indent=2)
-
-
-env.filters["to_nice_json"] = dump_json
-templates.env = env
-
 pipeline = Pipeline("english")
 base_of_language = ["english"]
+
+
+class FormData(BaseModel):
+    text: str
 
 
 @app.get("/")
@@ -33,34 +26,21 @@ def show_results(request: Request):
     return templates.TemplateResponse("show_results.html", {"request": request})
 
 
-@app.post("/")
-async def show_results(request: Request):
-    """Displays a web interface to demonstrate a running application."""
-    form = ShowResultsForm(request)
-    await form.load_data()
-    if form.is_valid():
-        text_into_list: list = form.description.split("/n")
-        answer = await text_analyze(text_into_list)
-        pretty_json = json.dumps(answer)
-        form.__dict__["pretty_json"] = pretty_json
-    else:
-        form.__dict__["pretty_json"] = {}
-    return templates.TemplateResponse("show_results.html", form.__dict__)
-
-
 @app.post("/text_analyze")
-async def text_analyze(text: list[str]) -> list[list]:
+async def text_analyze(data: FormData) -> list[dict]:
     # parce list of text for piece of texts with different languages
-    text_with_language_detect: list = []
+    list_of_text = data.text.split("\n")
 
-    for item in text:
+    text_with_language_detect: list = []
+    for item in list_of_text:
         text_with_language_detect.extend(detect_language(item))
+
     # lemmatization every part of text
     lemma_text: list = []
     for pair in text_with_language_detect:
         a: dict = await read_item((pair[0], pair[1]))
-        pair.append(a["sentences"])
-        lemma_text.append(pair)
+        for sentence in a["sentences"]:
+            lemma_text.append(sentence)
     return lemma_text
 
 
@@ -131,7 +111,7 @@ def detect_language(text: str) -> list:
     :return: list of language and text
     """
     answer = []
-    isReliable, textBytesFound, details, vectors = cld2.detect(text, returnVectors=True)
+    _, _, _, vectors = cld2.detect(text, returnVectors=True)
     for vector in vectors:
         answer.append([vector[2].lower(), text[vector[0] : vector[0] + vector[1]]])
     return answer

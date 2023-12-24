@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-
 {% block title %}
   <title>Show results</title>
 {% endblock %}
@@ -17,25 +16,22 @@
 
     <div class="row my-5">
       <h3 class="text-center display-4">Show results analyze text.</h3>
-      <form method="POST">
         <div class="mb-3">
-          <label for="exampleFormControlTextarea1" class="form-label">Description</label>
-          <textarea class="form-control" required name="description" id="exampleFormControlTextarea1" rows="3">{{description}}</textarea>
+          <label for="text-for-analyze" class="form-label">Input text:</label>
+          <textarea class="form-control" required name="description" id="text-for-analyze" rows="3">{{description}}</textarea>
           <div id="help" class="form-text">Please provide complete text to analyze. </div>
 
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+        <button id="submit_button" type="submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
 
-    <p id="demo"></p>
-
-    <script>
-        var jsonData = {{ pretty_json | to_nice_json}};
-        var parsedData = JSON.parse(jsonData);
-        document.getElementById("demo").innerHTML = "<pre>" + JSON.stringify(parsedData, null, 2) + "</pre>";
-    </script>
+<div class="row">
+      <div class="text-danger font-weight-bold">
+        <pre id="demo"></pre>
+      </div>
+</div>
 
 
+<script type="text/javascript" src='static/main.js'></script>
 {% endblock %}
