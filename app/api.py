@@ -101,6 +101,7 @@ async def read_item(body: tuple[str, str]) -> dict:
     if language not in base_of_language:
         pipeline.add(language)
         base_of_language.append(language)
+    pipeline.set_active(language)
     return pipeline.lemmatize(text)
 
 
@@ -111,9 +112,9 @@ def detect_language(text: str) -> list:
     :return: list of language and text
     """
     answer = []
-    _, _, _, vectors = cld2.detect(text, returnVectors=True)
+    *_, vectors = cld2.detect(text, returnVectors=True)
     for vector in vectors:
-        answer.append([vector[2].lower(), text[vector[0] : vector[0] + vector[1]]])
+        answer.append([vector[2].lower(), text[vector[0]: vector[0] + vector[1]]])
     return answer
 
 
