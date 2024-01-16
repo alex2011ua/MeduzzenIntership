@@ -6,62 +6,41 @@ Go to the project directory
     docker-compose up
 ```
 
-Endpoints:
+Web:
 `GET /`
 Displays a web interface to demonstrate a running application.
+![img.png](img.png)
 
-`GET /shop/items/`
-parce list of text for piece of texts with different languages
+Endpoints:
+`GET /text_analyze/`
+parce list of text for piece of texts with different languages, lematize, and clear stop words.
 ```json
 [
-    [
-        "english",
-        "France is the largest country in Western Europe and the third-largest in Europe as a whole.",
-        [
-            {
-                "id": 1,
-                "text": "France is the largest country in Western Europe and the third-largest in Europe as a whole.",
-                "tokens": [
-                    {
-                        "id": 1,
-                        "text": "France",
-                        "dspan": [
-                            0,
-                            6
-                        ],
-                        "span": [
-                            0,
-                            6
-                        ],
-                        "lemma": "France"
-                    },
-                    {
-                        "id": 19,
-                        "text": ".",
-                        "dspan": [
-                            90,
-                            91
-                        ],
-                        "span": [
-                            90,
-                            91
-                        ],
-                        "lemma": "."
-                    }
-                ],
-                "dspan": [
-                    0,
-                    91
-                ]
-            }
-        ]
-    ]
-]
+  {
+    "original_sentence": "Barack Obama gave a fantastic speech last night.",
+    "sentense_without_stopwords": "Barack Obama fantastic speech night .",
+    "language": "english",
+    "code": "en",
+    "tokens": [
+      {
+        "id": 1,
+        "text": "Barack",
+        "dspan": [
+          0,
+          6
+        ],
+        "span": [
+          0,
+          6
+        ],
+        "lemma": "Barack"
+      }, 
+   ...
 
-
-`/lemmatization`
-
-return dict of sentence, tokens, lemmas, languages
+```
+Endpoints:
+`/sentiment_analyze`
+Get JSON with text and return list of sentences with sentiment rating.
 
 
 

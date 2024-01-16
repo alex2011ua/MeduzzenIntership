@@ -1,18 +1,20 @@
-from stopwordsiso import stopwords
-from polyglot.text import Text
-from polyglot.downloader import downloader
 import pycld2 as cld2
+from polyglot.downloader import downloader
+from polyglot.text import Text
+from stopwordsiso import stopwords
 from trankit import Pipeline
 
 pipeline = Pipeline("english")
 base_of_language = ["english"]
 
+downloader.download("TASK:sentiment2", quiet=True)
+
 
 def detect_language(text: str) -> list[dict]:
     """
-    Function to detect language and position of change language
-    :param text: Text to be analyzed
-    :return: list of language and text
+    Function to detect language and position of change language.
+    :param text: Text to be analyzed.
+    :return: list of language and text.
     """
     answer = []
     _, _, _, vectors = cld2.detect(text, returnVectors=True)
@@ -20,16 +22,18 @@ def detect_language(text: str) -> list[dict]:
         answer.append(
             {
                 "language": vector[2].lower(),
-                "text": text[vector[0]: vector[0] + vector[1]],
-                "code": vector[3]})
+                "text": text[vector[0] : vector[0] + vector[1]],
+                "code": vector[3],
+            }
+        )
     return answer
 
 
 def parse_for_lemma(a: dict) -> list[str]:
     """
-    parse big dict after trankit in little list with only lemmas
-    :param a: dict
-    :return: list
+    parse big dict after trankit in little list with only lemmas.
+    :param a: dict.
+    :return: list.
     """
     list_of_lemmas: list = []
     for sentence in a["sentences"]:
@@ -41,25 +45,27 @@ def parse_for_lemma(a: dict) -> list[str]:
 def dell_stop_words(lemma_text: list[dict]) -> list[dict]:
     """
     Deleting stopwords from lemmatized text.
-    :param lemma_text: lemmatized text
-    :return: lemmatized text without stopwords
+    :param lemma_text: lemmatized text.
+    :return: lemmatized text without stopwords.
     """
     lemma_text_without_stopwords = []
     for sentense in lemma_text:
         new_token = []
         words = []
-        for token in sentense['tokens']:
-            if token['lemma'] in stopwords(sentense["code"]) or token["text"] in stopwords(sentense["code"]):
+        for token in sentense["tokens"]:
+            if token["lemma"] in stopwords(sentense["code"]) or token[
+                "text"
+            ] in stopwords(sentense["code"]):
                 continue
             new_token.append(token)
-            words.append(token['lemma'])
-        sentense_without_stopwords = ' '.join(words)
+            words.append(token["lemma"])
+        sentense_without_stopwords = " ".join(words)
         new_sentence = {
             "original_sentence": sentense["original_sentence"],
             "sentense_without_stopwords": sentense_without_stopwords,
             "language": sentense["language"],
             "code": sentense["code"],
-            'tokens': new_token
+            "tokens": new_token,
         }
         lemma_text_without_stopwords.append(new_sentence)
 
@@ -116,6 +122,7 @@ def read_item(body: tuple[str, str]) -> dict:
         "lang": "english"
     }
     """
+
     language, text = body[0], body[1]
     if language == "unknown":
         language = "english"
@@ -126,15 +133,21 @@ def read_item(body: tuple[str, str]) -> dict:
     return pipeline.lemmatize(text)
 
 
-def sentiment_analysis(sentense: str, code: str) -> tuple:
-    downloader.download(f"embeddings2.en")
+def sentiment_analysis(sentence: str, code: str) -> tuple:
+    """
+    Sentence Sentiment Analysis.
+    :param sentence: str.
+    :param code: str "en".
+    :return: sentence and sentiment - counts of "good" or "bad" words:
+        if sentiment > 0 : "good";
+        if sentiment < 0 : "bad"
+    """
+
     if code == "un":
         return None, None
-
-    text = Text(sentense)
+    text = Text(sentence)
     try:
         sentiment = sum([word.polarity for word in text.words])
     except ValueError:
-        print(code)
         return None, None
-    return sentense, int(sentiment)
+    return sentence, int(sentiment)

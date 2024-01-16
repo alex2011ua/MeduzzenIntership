@@ -14,6 +14,7 @@ analyze_button.onclick = function () {
 sentiment_button.onclick = function () {
     sentiment();
 };
+// send request to backend
 async function postData(url = "", data = {}) {
       const response = await fetch(url, {
         method: "POST",
@@ -24,13 +25,15 @@ async function postData(url = "", data = {}) {
       });
       return response.json(); // parses JSON response into native JavaScript objects
      }
+
+// pushed analyze_button
 function start() {
     rezalt.innerHTML = "";
     const text = text_area.value.trim()
 
     postData("/text_analyze", {"text": text}).then((data) => {
         const pretty_json = JSON.stringify(data, undefined, 2);
-        analyzed_data = data;
+        analyzed_data = data;  // save to use in sentiment function
         function output(inp) {
         rezalt.innerHTML = inp;
         }
@@ -55,10 +58,11 @@ function start() {
         output(syntaxHighlight(pretty_json));
     });
 }
-
+// pushed sentiment_button
 function sentiment() {
     postData("/sentiment_analyze", {"analyzed_text": analyzed_data}).then((data) => {
         let ul = document.getElementById("ul")
+        // clear previous text
         ul.innerText= "";
         rezalt2.innerText = "";
 
@@ -67,7 +71,7 @@ function sentiment() {
             function renderProductList(element, index, arr) {
                 let text = element[0];
                 let sentiment = element[1];
-                count_sentiment += sentiment;
+                count_sentiment += sentiment; // to determine the general mood of the entire text
                 let color = "black"
                 if (sentiment > 0){color = "green"}
                 else if (sentiment < 0) { color= "red"}
