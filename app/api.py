@@ -76,3 +76,4 @@ async def sentiment_analyze(data: FormAnalizedTextData) -> list[tuple[str | None
             sentiment_analysis(sentence["original_sentence"], sentence["code"])
         )
     return sentences
+
