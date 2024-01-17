@@ -16,57 +16,55 @@ def detect_language(text: str) -> list[dict]:
     :param text: Text to be analyzed.
     :return: list of language and text.
     """
-    answer = []
-    _, _, _, vectors = cld2.detect(text, returnVectors=True)
-    for vector in vectors:
-        answer.append(
-            {
-                "language": vector[2].lower(),
-                "text": text[vector[0] : vector[0] + vector[1]],
-                "code": vector[3],
-            }
-        )
-    return answer
+
+    *_, vectors = cld2.detect(text, returnVectors=True)
+    return [
+        {
+            "language": vector[2].lower(),
+            "text": text[vector[0]: vector[0] + vector[1]],
+            "code": vector[3],
+        }
+        for vector in vectors
+    ]
 
 
-def parse_for_lemma(a: dict) -> list[str]:
+def parse_for_lemma(input_data: dict) -> list[str]:
     """
     parse big dict after trankit in little list with only lemmas.
-    :param a: dict.
+    :param input_data: dict.
     :return: list.
     """
-    list_of_lemmas: list = []
-    for sentence in a["sentences"]:
-        for token in sentence["tokens"]:
-            list_of_lemmas.append(token["lemma"])
-    return list_of_lemmas
+    return [[token["lemma"] for token in sentence["tokens"]] for sentence in input_data["sentences"]]
 
 
-def dell_stop_words(lemma_text: list[dict]) -> list[dict]:
+def remove_stop_words(lemma_text: list[dict]) -> list[dict]:
     """
     Deleting stopwords from lemmatized text.
     :param lemma_text: lemmatized text.
     :return: lemmatized text without stopwords.
     """
     lemma_text_without_stopwords = []
-    for sentense in lemma_text:
-        new_token = []
-        words = []
-        for token in sentense["tokens"]:
-            if token["lemma"] in stopwords(sentense["code"]) or token[
-                "text"
-            ] in stopwords(sentense["code"]):
-                continue
-            new_token.append(token)
-            words.append(token["lemma"])
-        sentense_without_stopwords = " ".join(words)
+    for sentence in lemma_text:
+        # Fetch stopwords once per sentence
+        current_stopwords = stopwords(sentence["code"])
+
+        # Filter tokens that are not stopwords
+        filtered_tokens = [token for token in sentence["tokens"]
+                           if token["lemma"] not in current_stopwords
+                           and token["text"] not in current_stopwords]
+
+        # Join lemmas to form a sentence without stopwords
+        sentence_without_stopwords = " ".join(token["lemma"] for token in filtered_tokens)
+
+        # Construct new sentence structure
         new_sentence = {
-            "original_sentence": sentense["original_sentence"],
-            "sentense_without_stopwords": sentense_without_stopwords,
-            "language": sentense["language"],
-            "code": sentense["code"],
-            "tokens": new_token,
+            "original_sentence": sentence["original_sentence"],
+            "sentence_without_stopwords": sentence_without_stopwords,
+            "language": sentence["language"],
+            "code": sentence["code"],
+            "tokens": filtered_tokens,
         }
+
         lemma_text_without_stopwords.append(new_sentence)
 
     return lemma_text_without_stopwords

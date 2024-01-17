@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel
 
-from app.servises import dell_stop_words, detect_language, read_item, sentiment_analysis
+from app.servises import remove_stop_words, detect_language, read_item, sentiment_analysis
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -40,18 +40,11 @@ async def text_analyze(data: FormTextData) -> list[dict]:
     """Endpoint for analyze the text and return json wit all text information."""
     # parce list of text for piece of texts with different languages
     list_of_text = data.text.split("\n")
-
-    text_with_language_detect: list = []
-    for item in list_of_text:
-        text_with_language_detect.extend(detect_language(item))
+    text_with_language_detect = sum([detect_language(text) for text in list_of_text], [])
 
     # lemmatization every part of text
     lemma_text: list = []
-    for (
-            pair
-    ) in (
-            text_with_language_detect
-    ):  # division into sentences and add language information
+    for pair in text_with_language_detect:  # division into sentences and add language information
         a: dict = read_item((pair["language"], pair["text"]))
         for sentence in a["sentences"]:
             lemma_text.append(
@@ -63,17 +56,13 @@ async def text_analyze(data: FormTextData) -> list[dict]:
                 }
             )
     # delete stop words
-    lemma_text_without_stop_words = dell_stop_words(lemma_text)
+    lemma_text_without_stop_words = remove_stop_words(lemma_text)
     return lemma_text_without_stop_words
 
 
 @app.post("/sentiment_analyze")
 async def sentiment_analyze(data: FormAnalizedTextData) -> list[tuple[str | None, int | None]]:
     """Endpoint for sentiment analysis."""
-    sentences: list = []
-    for sentence in data.analyzed_text:
-        sentences.append(
-            sentiment_analysis(sentence["original_sentence"], sentence["code"])
-        )
+    sentences: list = [sentiment_analysis(sentence["original_sentence"], sentence["code"]) for sentence in
+                       data.analyzed_text]
     return sentences
-
