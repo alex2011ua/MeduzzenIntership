@@ -20,17 +20,42 @@
           <label for="text-for-analyze" class="form-label">Input text:</label>
           <textarea class="form-control" required name="description" id="text-for-analyze" rows="3">{{description}}</textarea>
           <div id="help" class="form-text">Please provide complete text to analyze. </div>
-
         </div>
-        <button id="submit_button" type="submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
-<div class="container">
-  <div class="row">
-        <div class="">
-          <pre id="demo"></pre>
+
+<div class="row">
+  <div class="col-5">
+    <div class = "row col-3 mx-auto" >
+      <button id="analyze_button" type="submit" class="btn btn-primary">Analyze</button>
+    </div>
+    <div class="row">
+      Show JSON with sentenses and tokens
+    </div>
+        <div clas="row">
+          <div class="text-danger font-weight-bold">
+            <pre id="demo"></pre>
+          </div>
         </div>
-  </div>
+    </div>
+
+  <div class="col-7">
+        <div class = "row col-3 mx-auto">
+      <button id="sentiment_button" type="submit" class="btn btn-primary">Sentiment</button>
+    </div>
+    <div clas="row">
+      Sentiment analyze
+    </div>
+        <div clas="row">
+          <div class="font-weight-bold">
+            <pre id="demo2"></pre>
+            <ul id = "ul">
+            </ul>
+
+
+          </div>
+        </div>
+    </div>
 </div>
 
 
